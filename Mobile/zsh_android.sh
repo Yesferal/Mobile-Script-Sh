@@ -1,54 +1,78 @@
+## ENVIRONMENT VAR
+APK_NAME="app-debug.apk"
+APK_FOLDER="app/build/outputs/apk/debug"
+
+
 ## ANDROID FUNCTIONS
 android() {
   COMMAND=$1
-  echo "COMMAND: $1"
 
   if [[ $COMMAND == "run" ]]
   then
-    echo "Running -> android run";
-    android_build_and_install;
+    android_build_and_install
   else
-    echo "No parameter found.";
+    logger "No parameter found."
   fi
 }
 
-
 android_build_and_install() {
-  echo "Backing up Old APK"
-  android_backup_apk;
+  logger "Build & Install"
+  
+  android_backup_old_apk
 
-  echo "Building the new APK"
-  ./gradlew assembleDebug;gradlew_return_code=$?
+  android_build_apk
 
   if [[ $gradlew_return_code != "0" ]] 
   then
-    echo "Build failed with exit code: $gradlew_return_code"
-    echo "Could not install the APK"
+    logger "Failed. Exit code: $gradlew_return_code. Could not install the APK"
   else
-    echo "Installing new APK"
-    android_install_apk;
+    android_install_apk
   fi
 }
 
-android_backup_apk() {
-  android_stat_apk;
-
+android_backup_old_apk() {
+  logger "Backing up old APK"
+  
   if cd $APK_FOLDER;
   then
-    echo "Renaming APK";
-    mv $APK_NAME "old-$APK_NAME"; 
-    cd $RETURN_FROM_APK_FOLDER; 
+    android_stat_apk "$APK_NAME"
+    logger "Renaming APK"
+    mv "$APK_NAME" "old-version-$APK_NAME"
+    comeBackToProjectRoot
   else
-    echo "Could not find $APK_FOLDER";
+    logger "Failed. Could not find $APK_FOLDER"
+  fi
+}
+
+android_build_apk() {
+  logger "Building the new APK"
+  ./gradlew assembleDebug;gradlew_return_code=$?
+}
+
+android_install_apk() {
+  logger "Installing new APK"
+ 
+  if cd $APK_FOLDER
+  then
+    android_stat_apk "$APK_NAME"
+    adb install $APK_NAME
+    comeBackToProjectRoot
+  else
+    logger "Failed. Could not find $APK_FOLDER"
   fi
 }
 
 android_stat_apk() {
-  stat -x "$APK_FOLDER/app-debug.apk";
+  COMMAND=$1
+
+  if [[ $COMMAND == "" ]]
+  then
+    stat -x "$APK_FOLDER/$APK_NAME"
+  else
+    stat -x $COMMAND
+  fi
 }
 
-android_install_apk() {
-  cd $APK_FOLDER; 
-  adb install app-debug.apk; 
-  cd $RETURN_FROM_APK_FOLDER;
+comeBackToProjectRoot() {
+  cd "../../../../../"
 }
