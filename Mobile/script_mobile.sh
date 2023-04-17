@@ -1,5 +1,6 @@
 ## INCLUDES
-source ~/Development/Script/Mobile-Script-zsh/Mobile/zsh_android.sh
+my_dir="$(dirname "$0")"
+source "$my_dir/script_android.sh"
 
 
 ## FONT STYLES
@@ -19,16 +20,22 @@ mobile() {
 
   if [[ $PLATFORM == $PLATFORM_ANDROID_SHORT || $PLATFORM == $PLATFORM_ANDROID ]]
   then
-    logger "Android was selected ($PLATFORM)"
     android $COMMAND
   else
     logger "No platform found ($PLATFORM)"
   fi
 }
 
-logger() {
+boldLogger() {
   MESSAGE=$1
   echo "  "
   echo "${BOLD}>> MOBILE LOGGER: $MESSAGE${NORMAL}"
+  echo "  "
+}
+
+logger() {
+  MESSAGE=$1
+  echo "  "
+  echo ">>>> MOBILE LOGGER: $MESSAGE"
   echo "  "
 }

@@ -5,6 +5,7 @@ APK_FOLDER="app/build/outputs/apk/debug"
 
 ## ANDROID FUNCTIONS
 android() {
+  boldLogger "Android was selected as Platform"
   COMMAND=$1
 
   if [[ $COMMAND == "run" ]]
@@ -16,7 +17,7 @@ android() {
 }
 
 android_build_and_install() {
-  logger "Build & Install"
+  boldLogger "Build & Install"
   
   android_backup_old_apk
 
@@ -31,7 +32,7 @@ android_build_and_install() {
 }
 
 android_backup_old_apk() {
-  logger "Backing up old APK"
+  boldLogger "Backing up old APK"
   
   if cd $APK_FOLDER;
   then
@@ -45,16 +46,17 @@ android_backup_old_apk() {
 }
 
 android_build_apk() {
-  logger "Building the new APK"
+  boldLogger "Building the new APK"
   ./gradlew assembleDebug;gradlew_return_code=$?
 }
 
 android_install_apk() {
-  logger "Installing new APK"
+  boldLogger "Installing APK"
  
   if cd $APK_FOLDER
   then
     android_stat_apk "$APK_NAME"
+    logger "Installing APK"
     adb install $APK_NAME
     comeBackToProjectRoot
   else
